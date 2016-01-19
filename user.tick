@@ -1,0 +1,18 @@
+var actionCount = stream
+    .from().measurement('user')
+    .groupBy('srcip')
+    .window()
+        .period(11s)
+        .every(1s)
+        .align()
+    .mapReduce(influxql.count('action'))
+
+actionCount.httpOut('action_count')
+
+actionCount
+  .groupBy()
+  .httpOut('test')
+
+actionCount
+  .groupBy()
+  .mapReduce(influxql.top(2, 'count')).httpOut('top_users')
